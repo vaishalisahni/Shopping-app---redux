@@ -1,23 +1,43 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeFromCart, incrementQty, decrementQty, clearCart } from '../features/Cart/cartSlice';
+import {
+  removeFromCart,
+  incrementQty,
+  decrementQty
+} from '../features/Cart/cartSlice';
+import {
+  increaseQuantity,
+  reduceQuantity
+} from '../features/Products/productsSlice';
 
 function CartCard({ item }) {
-   const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.products.products);
+  const currentProduct = products.find((p) => p.id === item.id);
+  const isOutOfStock = !currentProduct || currentProduct.quantity < 1;
 
-   const handleRemove = () => {
-      dispatch(removeFromCart(item.id));
-   };
+  const handleRemove = () => {
+    dispatch(removeFromCart(item.id));
+    dispatch(increaseQuantity({ id: item.id, qty: item.quantity }));
+  };
 
-   const handleIncrement = () => {
+  const handleIncrement = () => {
+    if (!isOutOfStock) {
       dispatch(incrementQty(item.id));
-   };
+      dispatch(reduceQuantity(item.id));
+    }
+  };
 
-   const handleDecrement = () => {
+  const handleDecrement = () => {
+    if (item.quantity === 1) {
+      handleRemove();
+    } else {
       dispatch(decrementQty(item.id));
-   };
+      dispatch(increaseQuantity({ id: item.id, qty: 1 }));
+    }
+  };
 
-   return (
+  return (
     <div className="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
       <img
         src={item.image}
@@ -29,22 +49,30 @@ function CartCard({ item }) {
         <p className="text-lg font-bold text-pink-600">₹{item.price}</p>
       </div>
       <div className="flex items-center gap-3">
-        <button 
-        className="w-8 h-8 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center text-gray-600 hover:text-pink-600 font-bold"
-        onClick={handleDecrement}
+        <button
+          onClick={handleDecrement}
+          className="w-8 h-8 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center text-gray-600 hover:text-pink-600 font-bold"
         >
-          -
+          −
         </button>
-        <span className="font-semibold text-lg min-w-[2rem] text-center">{item.quantity}</span>
-        <button 
-        className="w-8 h-8 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center text-gray-600 hover:text-pink-600 font-bold"
-        onClick={handleIncrement}>
+        <span className="font-semibold text-lg min-w-[2rem] text-center">
+          {item.quantity}
+        </span>
+        <button
+          onClick={handleIncrement}
+          disabled={isOutOfStock}
+          className={`w-8 h-8 rounded-full shadow-md transition-shadow duration-200 flex items-center justify-center font-bold ${
+            isOutOfStock
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-white text-gray-600 hover:text-pink-600 hover:shadow-lg'
+          }`}
+        >
           +
         </button>
       </div>
-      <button 
-      className="text-red-500 ml-6 text-lg hover:text-red-700 transition-colors duration-200 hover:scale-110"
-      onClick={handleRemove}
+      <button
+        onClick={handleRemove}
+        className="text-red-500 ml-6 text-lg hover:text-red-700 transition-colors duration-200 hover:scale-110"
       >
         ❌
       </button>

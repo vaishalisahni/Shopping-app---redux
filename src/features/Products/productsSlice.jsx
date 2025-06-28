@@ -4,7 +4,7 @@ import products from "../../products";
 const productSlice = createSlice({
   name: "products",
   initialState: {
-    products: products
+    products: products,
   },
   reducers: {
     reduceQuantity: (state, action) => {
@@ -14,12 +14,11 @@ const productSlice = createSlice({
       }
     },
     increaseQuantity: (state, action) => {
-      const item = state.products.find((p) => p.id === action.payload);
-      if (item) {
-        item.quantity += 1;
-      }
-    }
-  }
+      const { id, qty = 1 } = action.payload;
+      const product = state.products.find((p) => p.id === id);
+      if (product) product.quantity += qty;
+    },
+  },
 });
 
 export const { reduceQuantity, increaseQuantity } = productSlice.actions;
