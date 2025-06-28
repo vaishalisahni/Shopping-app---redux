@@ -3,9 +3,12 @@ import "./App.css";
 import ProductsDisplay from "./Components/ProductsDisplay";
 import Cart from "./Components/Cart";
 import CartIcon from "./Components/CartIcon";
+import { openCart,closeCart } from "./features/Cart/cartUiSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 function App() {
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const dispatch = useDispatch();
+  const isCartOpen = useSelector((state) => state.cartUi.isCartOpen);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -15,7 +18,7 @@ function App() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
             🛍️ Shopping App
           </h1>
-          <CartIcon onClick={() => setIsCartOpen(true)} />
+          <CartIcon onClick={() => dispatch(openCart())} />
         </div>
       </header>
 
@@ -27,7 +30,7 @@ function App() {
         </div>
 
         {/* Slide-in Cart */}
-        <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        <Cart isOpen={isCartOpen} onClose={() => dispatch(closeCart())} />
       </main>
     </div>
   );
